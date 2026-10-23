@@ -39,7 +39,7 @@ _Every assignment has its own run record and triggering comment. Continuing a se
 Install directly from the public Git repository on the coordinator:
 
 ```sh
-paseo plugin add git:yeyan00/paseo-bots --ref v0.1.0
+paseo plugin add git:yeyan00/paseo-bots --ref v0.1.1
 ```
 
 The manifest prepares locked production dependencies with lifecycle scripts disabled. Registry listing submission is separate from direct Git installation.

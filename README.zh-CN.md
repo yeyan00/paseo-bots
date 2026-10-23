@@ -42,7 +42,7 @@ _每次指派都有独立执行轮次，并关联触发评论；续跑保留原�
 可以直接在主控 Host 从公开 Git 仓库安装：
 
 ```sh
-paseo plugin add git:yeyan00/paseo-bots --ref v0.1.0
+paseo plugin add git:yeyan00/paseo-bots --ref v0.1.1
 ```
 
 安装声明通过锁文件准备生产依赖，并禁用依赖生命周期脚本。官方插件目录收录与直接 Git 安装是两个独立流程。

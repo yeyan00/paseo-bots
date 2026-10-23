@@ -1,6 +1,10 @@
 # Release verification
 
-Version: 0.1.0 (`v0.1.0` Git tag). Verification date: 2026-10-23.
+Version: 0.1.1 (`v0.1.1` Git tag). Verification date: 2026-10-23.
+
+## Changes in 0.1.1
+
+The member picker now shows the actual number of configured bots separately from the assignment limit. Bots → Settings controls the maximum bots assigned per comment, defaults to 8 when unset, and supports Unlimited. Saved settings are preserved. Both the picker and backend enforce the setting; it does not implement concurrency control or a new queue. TypeScript, Biome lint/format and all 28 coordinator tests pass, including persisted limits, the default of 8, and unlimited assignment to nine bots. The directory installation was hot reloaded successfully. The browser and device coverage below describes checks performed for 0.1.0; the new settings control has not had a separate browser/device check.
 
 ## Installation and compilation
 
@@ -12,7 +16,7 @@ The installed directory-source plugin was hot reloaded successfully on Paseo 0.1
 
 ## Interface and behavior
 
-TypeScript, Biome lint and formatting pass. The affected store test file contains five passing tests, including discussion/run ordering, orphan history visibility and latest-run aggregation. This publication preparation does not claim a new execution of the unchanged coordinator test suite.
+TypeScript, Biome lint and formatting pass. All 28 coordinator tests pass for 0.1.1. The five store tests passed during 0.1.0 preparation, including discussion/run ordering, orphan history visibility and latest-run aggregation; they were not rerun for this settings change.
 
 Playwright checks against the installed Paseo client covered desktop (1440×1000), narrow desktop (900×844) and phone-width (390×844) layouts. Checks include completed history, desktop side details, narrow-screen details, an accessible composer, draft and expanded-comment retention, actual scroll restoration, management sections and English interface text. These UI checks did not dispatch new model work or alter historical task status. Prior two-host pause/continuation testing is recorded in the repository's QA history.
 
