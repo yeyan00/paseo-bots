@@ -34,6 +34,14 @@ _Every assignment has its own run record and triggering comment. Continuing a se
 
 ## Install
 
+Install directly from the public Git repository on the coordinator:
+
+```sh
+paseo plugin add git:yeyan00/paseo-bots
+```
+
+The manifest prepares locked production dependencies with lifecycle scripts disabled. Registry listing submission is separate from direct Git installation.
+
 Requirements: Paseo **0.11.4 or later** with plugins enabled on the coordinator, plus Node.js and npm. Each execution host needs a running Paseo daemon and an authenticated, usable agent runtime. Tested with Paseo 0.11.4.
 
 Clone this repository **onto the coordinator host**:
@@ -49,6 +57,9 @@ The script installs or reloads the plugin through the local running daemon witho
 
 ## Set up your team
 
+![Task discussion and execution details with fictional sample data.](assets/team-discussion-desktop.png)
+
+The listing screenshots use the real plugin components with fictional data and simulated host responses; no live host, project or model information is included. See [release verification](docs/release-verification.md) for validation scope.
 1. In **Bots → Hosts**, add an execution host using its Paseo Relay pairing link. The coordinator's own host is already available.
 2. In **Bots**, add bots and choose their host, runtime, explicit model, default directory, and instructions.
 3. In **Bots → Projects & directories**, add a collaboration project and select the corresponding Paseo project on each participating host. The picker can register an existing directory or create a new host project.

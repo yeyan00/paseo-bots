@@ -36,6 +36,14 @@ _每次指派都有独立执行轮次，并关联触发评论；续跑保留原�
 
 ## 安装
 
+可以直接在主控 Host 从公开 Git 仓库安装：
+
+```sh
+paseo plugin add git:yeyan00/paseo-bots
+```
+
+安装声明通过锁文件准备生产依赖，并禁用依赖生命周期脚本。官方插件目录收录与直接 Git 安装是两个独立流程。
+
 主控需要 Paseo **0.11.4 或更新版本**、已启用插件，并具备 Node.js 和 npm。每个执行 Host 都需要运行中的 Paseo daemon，以及已认证、可用的 Agent Runtime。已在 Paseo 0.11.4 验证。
 
 在**主控 Host** 克隆插件仓库并安装：
@@ -51,6 +59,9 @@ npm exec -- tsx server/install.ts
 
 ## 配置并使用
 
+![虚构数据的任务讨论与执行详情](assets/team-discussion-desktop.png)
+
+上架截图使用实际插件组件、虚构示例数据和模拟 Host 响应，不包含真实 Host、项目或模型信息。验证范围见[发布验证说明](docs/release-verification.md)。
 1. 打开「成员列表 → 执行节点」，使用执行节点的 Paseo Relay 配对链接添加 Host；主控本机已自动提供。
 2. 添加成员，选择 Host、可用 Runtime、具体模型、默认目录和职责。
 3. 打开「项目与目录」，添加协作项目，选择各参与 Host 对应的 Paseo 项目。可在选择器中登记已有目录，或新建 Host 项目。

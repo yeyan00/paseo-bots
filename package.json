@@ -1,6 +1,11 @@
 {
   "name": "paseo-team-tasks",
   "version": "0.1.0",
+  "description": "Tasks, discussions and execution history for bots across Paseo hosts.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeyan00/paseo-bots.git"
+  },
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
