@@ -325,8 +325,16 @@ export function CommentComposer({
               ))}
           </ScrollView>
           <Text style={{ color: c.foregroundMuted }}>
-            {t("已选 {0}/8 位成员", { 0: members.length })}
+            {t("已选 {0} 位，共 {1} 位成员", {
+              0: members.length,
+              1: state.members.length,
+            })}
           </Text>
+          {state.members.length > 8 && (
+            <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
+              {t("每次最多选择 8 位成员")}
+            </Text>
+          )}
           {action(t("完成选择"), () => setPicker(false))}
         </Modal.Content>
       </Modal>
