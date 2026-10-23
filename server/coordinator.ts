@@ -175,6 +175,9 @@ export class Coordinator {
         (c) => c.requestId === input.requestId,
       );
       if (existing) return existing.id;
+      const memberLimit = state.assignmentSettings?.maxMembersPerComment ?? 0;
+      if (memberLimit > 0 && new Set(input.memberIds).size > memberLimit)
+        throw new Error(`每条评论最多指派 ${memberLimit} 位成员`);
       const task = state.tasks.find((t) => t.id === input.taskId);
       if (!task) throw new Error("任务不存在");
       if (

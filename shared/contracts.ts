@@ -114,8 +114,17 @@ export const runSchema = z.object({
   error: z.string().optional(),
 });
 export type Run = z.infer<typeof runSchema>;
+export const assignmentSettingsSchema = z.object({
+  maxMembersPerComment: z.number().int().min(0),
+});
+export const assignmentSettingsRpc = defineRpc({
+  name: "team.settings.assignment",
+  input: assignmentSettingsSchema,
+  output: z.boolean(),
+});
 export const stateSchema = z.object({
   version: z.literal(1),
+  assignmentSettings: assignmentSettingsSchema.optional(),
   hosts: z.array(hostSchema),
   members: z.array(memberSchema),
   projects: z.array(projectSchema).default([]),
@@ -150,7 +159,7 @@ export const commentRpc = defineRpc({
     requestId: z.string().min(1).max(100),
     taskId: z.string(),
     body: z.string().max(30000),
-    memberIds: z.array(z.string()).max(8),
+    memberIds: z.array(z.string()),
     attachments: z.array(attachmentSchema).max(4).optional(),
     resumeTask: z.boolean().optional(),
   }),

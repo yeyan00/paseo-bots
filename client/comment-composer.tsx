@@ -45,9 +45,11 @@ export function CommentComposer({
     [error, setError] = useState("");
   const pending = useRef<{ key: string; id: string } | null>(null);
   const c = theme.colors;
+  const memberLimit = state.assignmentSettings?.maxMembersPerComment ?? 0;
   const controlState = state.tasks.find((t) => t.id === taskId)?.controlState;
   const sendingBlocked =
     busy ||
+    (memberLimit > 0 && members.length > memberLimit) ||
     (!body.trim() && !files.length) ||
     (members.length > 0 && controlState === "pausing");
   const action = (label: string, onPress: () => void, disabled = busy) => (
@@ -295,7 +297,7 @@ export function CommentComposer({
                     setMembers((old) =>
                       old.includes(m.id)
                         ? old.filter((x) => x !== m.id)
-                        : old.length < 8
+                        : memberLimit === 0 || old.length < memberLimit
                           ? [...old, m.id]
                           : old,
                     )
@@ -330,9 +332,9 @@ export function CommentComposer({
               1: state.members.length,
             })}
           </Text>
-          {state.members.length > 8 && (
+          {memberLimit > 0 && (
             <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
-              {t("每次最多选择 8 位成员")}
+              {t("每次最多选择 {0} 位成员", { 0: memberLimit })}
             </Text>
           )}
           {action(t("完成选择"), () => setPicker(false))}

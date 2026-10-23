@@ -13,6 +13,7 @@ import { HostProjectPicker } from "./host-project-picker";
 import { SettingsSelect } from "@getpaseo/plugin/client/ui";
 import {
   projectRpc,
+  assignmentSettingsRpc,
   modelsRpc,
   runtimesRpc,
   type Project,
@@ -57,6 +58,7 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
   const saveMember = useRpc(memberRpc),
     saveHost = useRpc(hostRpc);
   const inspect = useRpc(inspectRpc);
+  const saveAssignmentSettings = useRpc(assignmentSettingsRpc);
   const saveProject = useRpc(projectRpc),
     loadModels = useRpc(modelsRpc),
     loadRuntimes = useRpc(runtimesRpc);
@@ -70,7 +72,7 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [tab, setTab] = useState<"board" | "team">("board");
   const [management, setManagement] = useState<
-    "members" | "projects" | "hosts"
+    "members" | "projects" | "hosts" | "settings"
   >("members");
   const [editor, setEditor] = useState<
     "member" | "project" | "host" | "inspect" | null
@@ -311,7 +313,39 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
               () => setManagement("hosts"),
               management === "hosts",
             )}
+            {button(
+              t("指派设置"),
+              () => setManagement("settings"),
+              management === "settings",
+            )}
           </View>
+          {management === "settings" && (
+            <View style={{ gap: 12 }}>
+              <SettingsSelect
+                label={t("每条评论最多指派成员数")}
+                value={String(
+                  state.assignmentSettings?.maxMembersPerComment ?? 0,
+                )}
+                options={[0, 1, 2, 4, 8, 16, 32].map((limit) => ({
+                  value: String(limit),
+                  label: limit === 0 ? t("不限") : String(limit),
+                }))}
+                disabled={busy}
+                onValueChange={(value) =>
+                  void act(() =>
+                    saveAssignmentSettings({
+                      maxMembersPerComment: Number(value),
+                    }),
+                  )
+                }
+              />
+              <Text style={{ color: muted, fontSize: 12 }}>
+                {t(
+                  "限制每次评论可指派的成员数量，不影响已提交的执行，也不是并发或排队设置。",
+                )}
+              </Text>
+            </View>
+          )}
           {management === "members" && (
             <>
               <View

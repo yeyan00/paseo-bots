@@ -388,6 +388,32 @@ test("Host project creation retries reuse registered directories and preserve Li
   });
   expect(create).toHaveBeenCalledWith({ parentPath: "/data", name: "test" });
 });
+test("assignment limit is persisted, enforced, and can be removed", async () => {
+  const f = await fixture();
+  const bots = Array.from({ length: 9 }, (_, i) => `bot-${i}`);
+  await f.store.mutate((state) => {
+    const base = state.members[0];
+    state.members.push(...bots.map((id) => ({ ...base, id, name: id })));
+    state.assignmentSettings = { maxMembersPerComment: 2 };
+  });
+  expect((await new Store(f.store.path).read()).assignmentSettings).toEqual({
+    maxMembersPerComment: 2,
+  });
+  const input = {
+    requestId: "limited",
+    taskId: f.task.id,
+    body: "Implement",
+    memberIds: bots,
+  };
+  await expect(f.coordinator.comment(input)).rejects.toThrow("最多指派 2");
+  expect((await f.store.read()).comments).toHaveLength(0);
+  await f.store.mutate((state) => {
+    state.assignmentSettings = { maxMembersPerComment: 0 };
+  });
+  await f.coordinator.comment(input);
+  expect((await f.store.read()).runs).toHaveLength(9);
+});
+
 test("duplicate comments/mentions create only one execution", async () => {
   const f = await fixture();
   const input = {

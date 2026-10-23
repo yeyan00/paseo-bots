@@ -144,7 +144,12 @@ export const english = {
   任务讨论与结果: "Discussion & results",
   "指派：": "Assigned to: ",
   "已选 {0} 位，共 {1} 位成员": "{0} selected · {1} bots available",
-  "每次最多选择 8 位成员": "Select up to 8 bots per assignment",
+  "每次最多选择 {0} 位成员": "Select up to {0} bots per assignment",
+  指派设置: "Assignment settings",
+  每条评论最多指派成员数: "Maximum bots per comment",
+  不限: "Unlimited",
+  "限制每次评论可指派的成员数量，不影响已提交的执行，也不是并发或排队设置。":
+    "Limits bots assigned per comment. Existing runs are unaffected. This does not control concurrency or queuing.",
   "说明.md": "notes.md",
   "每条评论最多 4 个附件": "Each comment supports up to 4 attachments.",
   "单个附件最大 512 KB": "Each attachment must be 512 KB or smaller.",

@@ -12,6 +12,7 @@ import {
 } from "./server/projects";
 import {
   snapshotRpc,
+  assignmentSettingsRpc,
   projectRpc,
   hostProjectsRpc,
   addHostProjectRpc,
@@ -72,6 +73,12 @@ export default function contribute(server: PluginServerContext) {
     };
   });
   server.handle(snapshotRpc, () => store.read());
+  server.handle(assignmentSettingsRpc, async (input) => {
+    await store.mutate((state) => {
+      state.assignmentSettings = input;
+    });
+    return true;
+  });
   server.handle(createTaskRpc, (input) => coordinator.createTask(input));
   server.handle(commentRpc, (input) => coordinator.comment(input));
   server.handle(memberRpc, async (input) => {
