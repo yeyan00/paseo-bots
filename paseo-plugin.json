@@ -1,0 +1,6 @@
+{
+  "id": "paseo-team-tasks",
+  "name": "team bots",
+  "description": "Tasks, comments and execution history across your Paseo hosts.",
+  "requirements": { "paseo": ">=0.11.4" }
+}
