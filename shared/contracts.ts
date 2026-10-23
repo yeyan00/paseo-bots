@@ -35,6 +35,7 @@ export const taskSchema = z.object({
   title: z.string(),
   description: z.string(),
   status: taskStatus,
+  controlState: z.enum(["pausing", "paused"]).optional(),
   createdAt: z.string(),
 });
 export type Task = z.infer<typeof taskSchema>;
@@ -86,7 +87,13 @@ export const runSchema = z.object({
     "completed",
     "failed",
     "cancelled",
+    "paused",
+    "delivery_unknown",
   ]),
+  previousRunId: z.string().optional(),
+  stopRequested: z.enum(["pause", "cancel"]).optional(),
+  submissionAttempted: z.boolean().optional(),
+  messageAccepted: z.boolean().optional(),
   agentId: z.string().optional(),
   prompt: z.string().optional(),
   uploadedFiles: z
@@ -145,6 +152,7 @@ export const commentRpc = defineRpc({
     body: z.string().max(30000),
     memberIds: z.array(z.string()).max(8),
     attachments: z.array(attachmentSchema).max(4).optional(),
+    resumeTask: z.boolean().optional(),
   }),
   output: z.string(),
 });
@@ -250,5 +258,10 @@ export const permissionRpc = defineRpc({
 export const stopRpc = defineRpc({
   name: "team.run.stop",
   input: z.object({ runId: z.string() }),
+  output: z.boolean(),
+});
+export const pauseTaskRpc = defineRpc({
+  name: "team.task.pause",
+  input: z.object({ taskId: z.string() }),
   output: z.boolean(),
 });

@@ -43,6 +43,11 @@ export function CommentComposer({
     [error, setError] = useState("");
   const pending = useRef<{ key: string; id: string } | null>(null);
   const c = theme.colors;
+  const controlState = state.tasks.find((t) => t.id === taskId)?.controlState;
+  const sendingBlocked =
+    busy ||
+    (!body.trim() && !files.length) ||
+    (members.length > 0 && controlState === "pausing");
   const action = (label: string, onPress: () => void, disabled = busy) => (
     <Pressable
       accessibilityRole="button"
@@ -176,12 +181,22 @@ export function CommentComposer({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={
-              members.length ? t("发送评论并派发") : t("发送评论")
+              members.length && controlState === "paused"
+                ? t("继续运行并发送")
+                : members.length
+                  ? t("发送评论并派发")
+                  : t("发送评论")
             }
-            disabled={busy || (!body.trim() && !files.length)}
+            disabled={sendingBlocked}
             onPress={() => {
               void operation(async () => {
-                const key = JSON.stringify([taskId, body, members, files]);
+                const key = JSON.stringify([
+                  taskId,
+                  body,
+                  members,
+                  files,
+                  controlState,
+                ]);
                 if (pending.current?.key !== key)
                   pending.current = {
                     key,
@@ -193,6 +208,7 @@ export function CommentComposer({
                   body,
                   memberIds: members,
                   attachments: files,
+                  resumeTask: members.length > 0 && controlState === "paused",
                 });
                 pending.current = null;
                 setBody("");
@@ -206,20 +222,27 @@ export function CommentComposer({
               paddingVertical: 10,
               borderRadius: 8,
               backgroundColor: c.surface2,
-              opacity: busy || (!body.trim() && !files.length) ? 0.4 : 1,
+              opacity: sendingBlocked ? 0.4 : 1,
             }}
           >
             <Text style={{ color: c.foreground }}>
-              {busy ? t("处理中…") : t("发送 ↑")}
+              {busy
+                ? t("处理中…")
+                : members.length && controlState === "paused"
+                  ? t("继续并发送 ↑")
+                  : t("发送 ↑")}
             </Text>
           </Pressable>
         </View>
       </View>
       <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
         {members.length
-          ? t("发送后将派发给 {0} 位成员，附件随本次指派传递。", {
-              0: members.length,
-            })
+          ? t(
+              "发送给 {0} 位成员：自动继续本任务会话，首次指派自动创建；执行中的补充按顺序排队。",
+              {
+                0: members.length,
+              },
+            )
           : t("不选择成员时仅发表评论。")}{" "}
         {t("附件最多 4 个，单个 512 KB。")}
       </Text>
@@ -285,6 +308,13 @@ export function CommentComposer({
                   <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
                     {state.hosts.find((h) => h.id === m.hostId)?.name} ·{" "}
                     {m.provider}
+                  </Text>
+                  <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
+                    {state.runs.some(
+                      (r) => r.taskId === taskId && r.member.id === m.id,
+                    )
+                      ? t("继续本任务会话")
+                      : t("首次指派 · 自动创建会话")}
                   </Text>
                 </Pressable>
               ))}

@@ -26,6 +26,7 @@ import {
   inspectRpc,
   timelineRpc,
   stopRpc,
+  pauseTaskRpc,
   permissionRpc,
   type State,
   type Member,
@@ -67,6 +68,8 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
     completed: t("回合完成"),
     failed: t("失败"),
     cancelled: t("已停止"),
+    paused: t("已暂停"),
+    delivery_unknown: t("等待送达确认"),
   };
 
   const snapshot = useRpc(snapshotRpc),
@@ -77,6 +80,7 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
   const inspect = useRpc(inspectRpc),
     timeline = useRpc(timelineRpc),
     stop = useRpc(stopRpc),
+    pauseTask = useRpc(pauseTaskRpc),
     respondPermission = useRpc(permissionRpc);
   const saveProject = useRpc(projectRpc),
     loadModels = useRpc(modelsRpc),
@@ -1039,6 +1043,13 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
                         >
                           {entry.title}
                         </Text>
+                        {!!entry.controlState && (
+                          <Text style={{ color: muted, fontSize: 12 }}>
+                            {entry.controlState === "pausing"
+                              ? t("暂停中")
+                              : t("已暂停")}
+                          </Text>
+                        )}
                         {!!entry.description && (
                           <Text
                             numberOfLines={2}
@@ -1093,6 +1104,22 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
               void act(() => setStatus({ taskId: task.id, status }));
             }}
           />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {!task.controlState &&
+              task.status !== "done" &&
+              button(t("暂停任务"), () => {
+                void act(() => pauseTask({ taskId: task.id }));
+              })}
+            {!!task.controlState && (
+              <Text style={{ color: muted }}>
+                {task.controlState === "pausing"
+                  ? t("暂停中：正在等待各节点确认中断。")
+                  : t(
+                      "已暂停：补充评论后，@选择成员并点击继续。未选择的成员保持暂停。",
+                    )}
+              </Text>
+            )}
+          </View>
           <Text style={{ color: foreground, fontSize: 18, fontWeight: "700" }}>
             {t("执行与会话记录")}
           </Text>
@@ -1119,6 +1146,25 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
               >
                 <Text style={{ color: foreground, fontWeight: "700" }}>
                   {r.member.name} · {runLabels[r.status]}
+                  {r.stopRequested &&
+                  [
+                    "queued",
+                    "starting",
+                    "running",
+                    "permission",
+                    "delivery_unknown",
+                  ].includes(r.status)
+                    ? ` · ${t("正在中断")}`
+                    : ""}
+                </Text>
+                {!!r.previousRunId && (
+                  <Text style={{ color: muted, fontSize: 12 }}>
+                    {t("沿用本任务成员会话")}
+                  </Text>
+                )}
+                <Text selectable style={{ color: muted, fontSize: 12 }}>
+                  {t("触发评论：")}
+                  {state.comments.find((c) => c.id === r.commentId)?.body}
                 </Text>
                 <Text selectable style={{ color: muted, fontSize: 12 }}>
                   {state.hosts.find((h) => h.id === r.member.hostId)?.name} ·{" "}
@@ -1145,9 +1191,13 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
                           : { serverId: r.member.hostId }),
                       }),
                     )}
-                  {["queued", "starting", "running", "permission"].includes(
-                    r.status,
-                  ) &&
+                  {[
+                    "queued",
+                    "starting",
+                    "running",
+                    "permission",
+                    "delivery_unknown",
+                  ].includes(r.status) &&
                     button(t("停止执行"), () => {
                       void act(() => stop({ runId: r.id }));
                     })}

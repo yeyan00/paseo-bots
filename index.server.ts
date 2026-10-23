@@ -25,6 +25,7 @@ import {
   hostRpc,
   timelineRpc,
   stopRpc,
+  pauseTaskRpc,
   inspectRpc,
   permissionRpc,
   uploadAttachmentRpc,
@@ -77,13 +78,8 @@ export default function contribute(server: PluginServerContext) {
     await coordinator.saveMember(input);
     return true;
   });
-  server.handle(statusRpc, async (input) =>
-    store.mutate((s) => {
-      const task = s.tasks.find((t) => t.id === input.taskId);
-      if (!task) throw new Error("任务不存在");
-      task.status = input.status;
-      return true;
-    }),
+  server.handle(statusRpc, (input) =>
+    coordinator.setStatus(input.taskId, input.status),
   );
   server.handle(hostRpc, async (input) => {
     const host = await connections.saveOffer(
@@ -105,6 +101,7 @@ export default function contribute(server: PluginServerContext) {
     coordinator.timeline(input.runId, input.cursor),
   );
   server.handle(stopRpc, (input) => coordinator.stop(input.runId));
+  server.handle(pauseTaskRpc, (input) => coordinator.pause(input.taskId));
   server.handle(permissionRpc, (input) => coordinator.permission(input));
   return coordinator.start();
 }

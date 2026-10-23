@@ -7,6 +7,7 @@ import {
   commentRpc,
   timelineRpc,
   stopRpc,
+  pauseTaskRpc,
   statusRpc,
   memberRpc,
   projectRpc,
@@ -25,7 +26,7 @@ async function callPluginRpc(
 }
 if (!command || command === "help") {
   console.log(
-    "npm run team -- snapshot | create <input.json> | comment <input.json> | member <input.json> | project <input.json> | timeline <runId> | stop <runId> | status <taskId> <status>",
+    "npm run team -- snapshot | create <input.json> | comment <input.json> | member <input.json> | project <input.json> | timeline <runId> | stop <runId> | pause <taskId> | status <taskId> <status>",
   );
 } else {
   const connections = new Connections();
@@ -59,6 +60,9 @@ if (!command || command === "help") {
         break;
       case "stop":
         result = await callPluginRpc(stopRpc, invoke, { runId: arg });
+        break;
+      case "pause":
+        result = await callPluginRpc(pauseTaskRpc, invoke, { taskId: arg });
         break;
       case "status":
         result = await callPluginRpc(statusRpc, invoke, {

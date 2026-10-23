@@ -1,4 +1,21 @@
 export const english = {
+  已暂停: "Paused",
+  暂停中: "Pausing",
+  暂停任务: "Pause task",
+  正在中断: "Stopping",
+  等待送达确认: "Awaiting delivery confirmation",
+  "暂停中：正在等待各节点确认中断。":
+    "Pausing: waiting for all hosts to confirm interruption.",
+  "已暂停：补充评论后，@选择成员并点击继续。未选择的成员保持暂停。":
+    "Paused. Add a comment, select @members and continue. Unselected members stay paused.",
+  沿用本任务成员会话: "Continuing this member's task session",
+  "触发评论：": "Triggered by: ",
+  继续运行并发送: "Continue and send",
+  "继续并发送 ↑": "Continue & send ↑",
+  "发送给 {0} 位成员：自动继续本任务会话，首次指派自动创建；执行中的补充按顺序排队。":
+    "Send to {0} members: continue the task session or create it on first assignment. Follow-ups wait for the current turn.",
+  继续本任务会话: "Continue task session",
+  "首次指派 · 自动创建会话": "First assignment · Create session automatically",
   "编辑 {0}": "Edit {0}",
   "添加 {0}": "Add {0}",
   "{0} 位成员 · {1} 个执行节点": "{0} members · {1} hosts",
