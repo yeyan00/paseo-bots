@@ -7,12 +7,114 @@ import { english, resolveLanguage, translate } from "../client/translations";
 import { preferences } from "../shared/preferences";
 import ts from "typescript";
 import { URL } from "node:url";
+import {
+  discussionEntries,
+  isActiveRun,
+  latestMemberRuns,
+} from "../client/discussion-model";
+import { stateSchema, type Run } from "../shared/contracts";
 
 const dirs: string[] = [];
+test("discussion keeps runs beside their trigger and results in completion order", () => {
+  const member = {
+    id: "builder",
+    name: "Builder",
+    hostId: "local",
+    provider: "example",
+    cwd: "/workspace",
+    instructions: "",
+  };
+  const run: Run = {
+    id: "run-a",
+    taskId: "task",
+    commentId: "assign",
+    member,
+    status: "completed",
+    createdAt: "2026-01-01",
+    updatedAt: "2026-01-01",
+    result: "done",
+  };
+  const state = stateSchema.parse({
+    version: 1,
+    hosts: [],
+    members: [member],
+    tasks: [],
+    runs: [
+      run,
+      { ...run, id: "run-b" },
+      { ...run, id: "orphan", commentId: "deleted" },
+    ],
+    comments: [
+      {
+        id: "assign",
+        taskId: "task",
+        requestId: "1",
+        author: "User",
+        body: "Build",
+        memberIds: [member.id],
+        createdAt: "2026-01-01",
+      },
+      {
+        id: "followup",
+        taskId: "task",
+        requestId: "2",
+        author: "User",
+        body: "Correction",
+        memberIds: [],
+        createdAt: "2026-01-02",
+      },
+      {
+        id: "result-b",
+        taskId: "task",
+        requestId: "3",
+        author: "Builder",
+        body: "Done",
+        memberIds: [],
+        runId: "run-b",
+        createdAt: "2026-01-03",
+      },
+      {
+        id: "result-a",
+        taskId: "task",
+        requestId: "4",
+        author: "Builder",
+        body: "Done",
+        memberIds: [],
+        runId: "run-a",
+        createdAt: "2026-01-04",
+      },
+    ],
+  });
+  expect(
+    discussionEntries(state, "task").map((entry) =>
+      entry.kind === "run" ? entry.run.id : entry.comment.id,
+    ),
+  ).toEqual([
+    "assign",
+    "run-a",
+    "run-b",
+    "followup",
+    "result-b",
+    "result-a",
+    "orphan",
+  ]);
+  expect(discussionEntries(state, "other")).toEqual([]);
+  const latest: Run = {
+    ...run,
+    id: "continued",
+    previousRunId: run.id,
+    status: "permission",
+  };
+  expect(latestMemberRuns([run, latest])).toEqual([latest]);
+  expect(isActiveRun(latest)).toBe(true);
+  expect(isActiveRun({ ...latest, status: "paused" })).toBe(false);
+});
 test("all Chinese UI copy goes through the translator", async () => {
   const unlocalized: string[] = [];
   for (const file of [
     "team-screen.tsx",
+    "task-discussion.tsx",
+    "run-detail.tsx",
     "comment-composer.tsx",
     "comment-attachments.tsx",
     "host-project-picker.tsx",
@@ -59,7 +161,7 @@ test("plugin language defaults, fallbacks and placeholders preserve user content
   expect(resolveLanguage("en", "zh-CN")).toBe("en");
   expect(resolveLanguage("zh-CN", "en-US")).toBe("zh-CN");
   expect(translate("en", "编辑成员 {0}", { 0: "中文成员 {1}" })).toBe(
-    "Edit member 中文成员 {1}",
+    "Edit bot 中文成员 {1}",
   );
   expect(translate("zh-CN", "编辑成员 {0}", { 0: "My agent" })).toBe(
     "编辑成员 My agent",

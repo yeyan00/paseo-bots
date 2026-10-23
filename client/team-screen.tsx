@@ -8,9 +8,7 @@ import {
   Modal,
 } from "@getpaseo/plugin/client/react-native";
 import { useRpc, type PluginScreenProps } from "@getpaseo/plugin/client";
-import { CommentComposer } from "./comment-composer";
-import { CommentAttachments } from "./comment-attachments";
-import { EventRow } from "./event-row";
+import { TaskDiscussion } from "./task-discussion";
 import { HostProjectPicker } from "./host-project-picker";
 import { SettingsSelect } from "@getpaseo/plugin/client/ui";
 import {
@@ -20,17 +18,11 @@ import {
   type Project,
   snapshotRpc,
   createTaskRpc,
-  statusRpc,
   memberRpc,
   hostRpc,
   inspectRpc,
-  timelineRpc,
-  stopRpc,
-  pauseTaskRpc,
-  permissionRpc,
   type State,
   type Member,
-  type Run,
 } from "../shared/contracts";
 
 const requestId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -60,28 +52,11 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
     in_review: t("待审核"),
     done: t("已完成"),
   } as const;
-  const runLabels = {
-    queued: t("排队中"),
-    starting: t("启动中"),
-    running: t("执行中"),
-    permission: t("等待权限"),
-    completed: t("回合完成"),
-    failed: t("失败"),
-    cancelled: t("已停止"),
-    paused: t("已暂停"),
-    delivery_unknown: t("等待送达确认"),
-  };
-
   const snapshot = useRpc(snapshotRpc),
-    createTask = useRpc(createTaskRpc),
-    setStatus = useRpc(statusRpc);
+    createTask = useRpc(createTaskRpc);
   const saveMember = useRpc(memberRpc),
     saveHost = useRpc(hostRpc);
-  const inspect = useRpc(inspectRpc),
-    timeline = useRpc(timelineRpc),
-    stop = useRpc(stopRpc),
-    pauseTask = useRpc(pauseTaskRpc),
-    respondPermission = useRpc(permissionRpc);
+  const inspect = useRpc(inspectRpc);
   const saveProject = useRpc(projectRpc),
     loadModels = useRpc(modelsRpc),
     loadRuntimes = useRpc(runtimesRpc);
@@ -94,6 +69,9 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
   const [busy, setBusy] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [tab, setTab] = useState<"board" | "team">("board");
+  const [management, setManagement] = useState<
+    "members" | "projects" | "hosts"
+  >("members");
   const [editor, setEditor] = useState<
     "member" | "project" | "host" | "inspect" | null
   >(null);
@@ -125,17 +103,6 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
     [hostId, setHostId] = useState("");
   const [pairingUrl, setPairingUrl] = useState("");
   const [providers, setProviders] = useState("");
-  const [selectedRun, setSelectedRun] = useState<Run | null>(null);
-  const [rows, setRows] = useState<{ seq: number; item: unknown }[]>([]);
-  const [hasOlder, setHasOlder] = useState(false);
-  const historyCursor = useRef<{ epoch: string; seq: number } | null>(null);
-  const viewedRun = useRef<string | null>(null);
-  viewedRun.current = selectedRun?.id ?? null;
-  const [historyBusy, setHistoryBusy] = useState(false);
-  const [permissions, setPermissions] = useState<
-    { id: string; title: string; kind: string; input: unknown }[]
-  >([]);
-  const [timelineError, setTimelineError] = useState("");
   const pendingTask = useRef<{ key: string; id: string } | null>(null);
   const mounted = useRef(true);
   const foreground = theme.colors.foreground,
@@ -197,51 +164,6 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
       clearInterval(timer);
     };
   }, [refresh, t]);
-  useEffect(() => {
-    if (!selectedRun) return;
-    let cancelled = false,
-      loading = false;
-    const poll = async () => {
-      if (loading) return;
-      loading = true;
-      try {
-        const page = await timeline({ runId: selectedRun.id });
-        if (!cancelled) {
-          setRows((old) =>
-            [
-              ...new Map(
-                [...old, ...page.entries].map((row) => [row.seq, row]),
-              ).values(),
-            ].sort((a, b) => a.seq - b.seq),
-          );
-          setPermissions(page.permissions);
-          if (!historyCursor.current) {
-            setHasOlder(page.hasOlder);
-            historyCursor.current = page.startCursor;
-          }
-          setTimelineError("");
-        }
-      } catch {
-        if (!cancelled)
-          setTimelineError(t("执行记录暂时不可用，正在重试连接。"));
-      } finally {
-        loading = false;
-      }
-    };
-    setRows([]);
-    setHasOlder(false);
-    setHistoryBusy(false);
-    historyCursor.current = null;
-    setPermissions([]);
-    void poll();
-    const timer = setInterval(() => {
-      void poll();
-    }, 4000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [selectedRun, timeline, t]);
   async function act(fn: () => Promise<unknown>, inEditor = !!editor) {
     if (busy) return;
     setBusy(true);
@@ -336,6 +258,19 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
     setEditor(kind);
   }
   const task = state?.tasks.find((t) => t.id === taskId);
+  if (tab === "board" && state && task)
+    return (
+      <TaskDiscussion
+        key={task.id}
+        state={state}
+        task={task}
+        theme={theme}
+        layout={layout}
+        navigation={navigation}
+        refresh={refresh}
+        onBack={() => setTaskId(null)}
+      />
+    );
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -347,11 +282,10 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
           () => {
             setTab("board");
             setTaskId(null);
-            setSelectedRun(null);
           },
           tab === "board",
         )}
-        {button(t("执行节点与成员"), () => setTab("team"), tab === "team")}
+        {button(t("成员列表"), () => setTab("team"), tab === "team")}
       </View>
       {!!error && (
         <Text accessibilityRole="alert" style={{ color: foreground }}>
@@ -361,49 +295,25 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
       {!state && <Text style={{ color: muted }}>{t("正在连接主 Host…")}</Text>}
       {tab === "team" && state && (
         <>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-            }}
-          >
-            <View style={{ gap: 4 }}>
-              <Text
-                style={{ color: foreground, fontSize: 20, fontWeight: "600" }}
-              >
-                {t("团队成员")}
-              </Text>
-              <Text style={{ color: muted, fontSize: 12 }}>
-                {t("{0} 位成员 · {1} 个执行节点", {
-                  0: state.members.length,
-                  1: state.hosts.length,
-                })}
-              </Text>
-            </View>
-            {button(t("＋ 添加成员"), () => {
-              setMember(initialMember);
-              openEditor("member");
-            })}
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {button(
+              t("成员列表"),
+              () => setManagement("members"),
+              management === "members",
+            )}
+            {button(
+              t("项目与目录"),
+              () => setManagement("projects"),
+              management === "projects",
+            )}
+            {button(
+              t("执行节点"),
+              () => setManagement("hosts"),
+              management === "hosts",
+            )}
           </View>
-          {!state.members.length && (
-            <Text style={{ color: muted }}>
-              {t("还没有成员，添加成员并选择执行节点与 Runtime。")}
-            </Text>
-          )}
-          {state.members.map((m) => (
-            <View
-              key={m.id}
-              style={{
-                padding: 16,
-                borderWidth: 1,
-                borderColor: border,
-                borderRadius: 12,
-                backgroundColor: surface,
-                gap: 8,
-              }}
-            >
+          {management === "members" && (
+            <>
               <View
                 style={{
                   flexDirection: "row",
@@ -412,174 +322,242 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
                   gap: 12,
                 }}
               >
-                <View style={{ flex: 1, gap: 4 }}>
+                <View style={{ gap: 4 }}>
                   <Text
                     style={{
                       color: foreground,
+                      fontSize: 20,
                       fontWeight: "600",
-                      fontSize: 15,
                     }}
                   >
-                    {m.name}
+                    {t("团队成员")}
                   </Text>
                   <Text style={{ color: muted, fontSize: 12 }}>
-                    {state.hosts.find((h) => h.id === m.hostId)?.name} ·{" "}
-                    {m.provider.split("/")[0]}
+                    {t("{0} 位成员 · {1} 个执行节点", {
+                      0: state.members.length,
+                      1: state.hosts.length,
+                    })}
                   </Text>
                 </View>
-                {button(
-                  t("编辑"),
-                  () => {
-                    setMember({ ...m });
-                    openEditor("member", m.id);
-                  },
-                  false,
-                  t("编辑成员 {0}", { 0: m.name }),
-                )}
+                {button(t("＋ 添加成员"), () => {
+                  setMember(initialMember);
+                  openEditor("member");
+                })}
               </View>
-              <Text selectable style={{ color: muted, fontSize: 12 }}>
-                {m.provider}
-              </Text>
-              {!!m.instructions && (
-                <Text
-                  numberOfLines={2}
-                  style={{ color: foreground, fontSize: 13, lineHeight: 19 }}
-                >
-                  {m.instructions}
+              {!state.members.length && (
+                <Text style={{ color: muted }}>
+                  {t("还没有成员，添加成员并选择执行节点与 Runtime。")}
                 </Text>
               )}
-              <Text numberOfLines={2} style={{ color: muted, fontSize: 12 }}>
-                {t("默认目录：")}
-                {m.cwd}
-              </Text>
-            </View>
-          ))}
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              marginTop: 12,
-            }}
-          >
-            <Text
-              style={{ color: foreground, fontWeight: "600", fontSize: 16 }}
-            >
-              {t("项目与目录")}
-            </Text>
-            {button(t("＋ 添加项目"), () => {
-              setProject({ id: "", name: "", paths: {} });
-              openEditor("project");
-            })}
-          </View>
-          {!state.projects.length && (
-            <Text style={{ color: muted }}>
-              {t("还没有项目，任务将使用成员的默认目录。")}
-            </Text>
+              {state.members.map((m) => (
+                <View
+                  key={m.id}
+                  style={{
+                    padding: 16,
+                    borderWidth: 1,
+                    borderColor: border,
+                    borderRadius: 12,
+                    backgroundColor: surface,
+                    gap: 8,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                    }}
+                  >
+                    <View style={{ flex: 1, gap: 4 }}>
+                      <Text
+                        style={{
+                          color: foreground,
+                          fontWeight: "600",
+                          fontSize: 15,
+                        }}
+                      >
+                        {m.name}
+                      </Text>
+                      <Text style={{ color: muted, fontSize: 12 }}>
+                        {state.hosts.find((h) => h.id === m.hostId)?.name} ·{" "}
+                        {m.provider.split("/")[0]}
+                      </Text>
+                    </View>
+                    {button(
+                      t("编辑"),
+                      () => {
+                        setMember({ ...m });
+                        openEditor("member", m.id);
+                      },
+                      false,
+                      t("编辑成员 {0}", { 0: m.name }),
+                    )}
+                  </View>
+                  <Text selectable style={{ color: muted, fontSize: 12 }}>
+                    {m.provider}
+                  </Text>
+                  {!!m.instructions && (
+                    <Text
+                      numberOfLines={2}
+                      style={{
+                        color: foreground,
+                        fontSize: 13,
+                        lineHeight: 19,
+                      }}
+                    >
+                      {m.instructions}
+                    </Text>
+                  )}
+                  <Text
+                    numberOfLines={2}
+                    style={{ color: muted, fontSize: 12 }}
+                  >
+                    {t("默认目录：")}
+                    {m.cwd}
+                  </Text>
+                </View>
+              ))}
+            </>
           )}
-          {state.projects.map((p) => (
-            <View
-              key={p.id}
-              style={{
-                padding: 16,
-                borderWidth: 1,
-                borderColor: border,
-                borderRadius: 12,
-                gap: 8,
-              }}
-            >
+          {management === "projects" && (
+            <>
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 12,
+                  marginTop: 12,
                 }}
               >
-                <Text style={{ color: foreground, flex: 1, fontWeight: "500" }}>
-                  {p.name}
-                </Text>
-                {button(
-                  t("编辑"),
-                  () => {
-                    setProject({ ...p, paths: { ...p.paths } });
-                    openEditor("project", p.id);
-                  },
-                  false,
-                  t("编辑项目 {0}", { 0: p.name }),
-                )}
-              </View>
-              {Object.entries(p.paths).map(([hostId, path]) => (
                 <Text
-                  key={hostId}
-                  selectable
-                  style={{ color: muted, fontSize: 12 }}
+                  style={{ color: foreground, fontWeight: "600", fontSize: 16 }}
                 >
-                  {state.hosts.find((h) => h.id === hostId)?.name ?? hostId} ·{" "}
-                  {path}
+                  {t("项目与目录")}
                 </Text>
-              ))}
-            </View>
-          ))}
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              marginTop: 12,
-            }}
-          >
-            <Text
-              style={{ color: foreground, fontWeight: "600", fontSize: 16 }}
-            >
-              {t("执行节点")}
-            </Text>
-            {button(t("＋ 添加节点"), () => {
-              setHostId("");
-              setHostName("");
-              setPairingUrl("");
-              openEditor("host");
-            })}
-          </View>
-          {state.hosts.map((h) => (
-            <View
-              key={h.id}
-              style={{
-                paddingVertical: 12,
-                borderBottomWidth: 1,
-                borderColor: border,
-                gap: 8,
-              }}
-            >
-              <Text style={{ color: foreground }}>
-                {h.name} · {h.local ? t("本机") : t("远端")}
-              </Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                {button(t("检查 {0} 的 Runtime", { 0: h.name }), () => {
-                  openEditor("inspect");
-                  setProviders("");
-                  void act(async () => {
-                    setProviders(
-                      JSON.stringify(
-                        (await inspect({ hostId: h.id })).providers,
-                        null,
-                        2,
-                      ),
-                    );
-                  }, true);
+                {button(t("＋ 添加项目"), () => {
+                  setProject({ id: "", name: "", paths: {} });
+                  openEditor("project");
                 })}
-                {!h.local &&
-                  button(t("重新配对 {0}", { 0: h.name }), () => {
-                    setHostId(h.id);
-                    setHostName(h.name);
-                    setPairingUrl("");
-                    openEditor("host", h.id);
-                  })}
               </View>
-            </View>
-          ))}
+              {!state.projects.length && (
+                <Text style={{ color: muted }}>
+                  {t("还没有项目，任务将使用成员的默认目录。")}
+                </Text>
+              )}
+              {state.projects.map((p) => (
+                <View
+                  key={p.id}
+                  style={{
+                    padding: 16,
+                    borderWidth: 1,
+                    borderColor: border,
+                    borderRadius: 12,
+                    gap: 8,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                    }}
+                  >
+                    <Text
+                      style={{ color: foreground, flex: 1, fontWeight: "500" }}
+                    >
+                      {p.name}
+                    </Text>
+                    {button(
+                      t("编辑"),
+                      () => {
+                        setProject({ ...p, paths: { ...p.paths } });
+                        openEditor("project", p.id);
+                      },
+                      false,
+                      t("编辑项目 {0}", { 0: p.name }),
+                    )}
+                  </View>
+                  {Object.entries(p.paths).map(([hostId, path]) => (
+                    <Text
+                      key={hostId}
+                      selectable
+                      style={{ color: muted, fontSize: 12 }}
+                    >
+                      {state.hosts.find((h) => h.id === hostId)?.name ?? hostId}{" "}
+                      · {path}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+            </>
+          )}
+          {management === "hosts" && (
+            <>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  marginTop: 12,
+                }}
+              >
+                <Text
+                  style={{ color: foreground, fontWeight: "600", fontSize: 16 }}
+                >
+                  {t("执行节点")}
+                </Text>
+                {button(t("＋ 添加节点"), () => {
+                  setHostId("");
+                  setHostName("");
+                  setPairingUrl("");
+                  openEditor("host");
+                })}
+              </View>
+              {state.hosts.map((h) => (
+                <View
+                  key={h.id}
+                  style={{
+                    paddingVertical: 12,
+                    borderBottomWidth: 1,
+                    borderColor: border,
+                    gap: 8,
+                  }}
+                >
+                  <Text style={{ color: foreground }}>
+                    {h.name} · {h.local ? t("本机") : t("远端")}
+                  </Text>
+                  <View
+                    style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}
+                  >
+                    {button(t("检查 {0} 的 Runtime", { 0: h.name }), () => {
+                      openEditor("inspect");
+                      setProviders("");
+                      void act(async () => {
+                        setProviders(
+                          JSON.stringify(
+                            (await inspect({ hostId: h.id })).providers,
+                            null,
+                            2,
+                          ),
+                        );
+                      }, true);
+                    })}
+                    {!h.local &&
+                      button(t("重新配对 {0}", { 0: h.name }), () => {
+                        setHostId(h.id);
+                        setHostName(h.name);
+                        setPairingUrl("");
+                        openEditor("host", h.id);
+                      })}
+                  </View>
+                </View>
+              ))}
+            </>
+          )}
         </>
       )}
       {state && editor && (
@@ -1073,315 +1051,6 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
                 </View>
               ))}
           </View>
-        </>
-      )}
-      {tab === "board" && state && task && (
-        <>
-          {button(t("返回看板"), () => {
-            setTaskId(null);
-            setSelectedRun(null);
-          })}
-          <Text style={{ color: foreground, fontSize: 22, fontWeight: "700" }}>
-            {task.title}
-          </Text>
-          <Text selectable style={{ color: muted }}>
-            {task.description}
-          </Text>
-          <Text style={{ color: muted, fontSize: 12 }}>
-            {t("项目：")}
-            {state.projects.find((p) => p.id === task.projectId)?.name ??
-              t("使用成员默认目录")}
-          </Text>
-          <SettingsSelect
-            label={t("任务状态")}
-            value={task.status}
-            options={Object.entries(labels).map(([value, label]) => ({
-              value: value as keyof typeof labels,
-              label,
-            }))}
-            disabled={busy}
-            onValueChange={(status) => {
-              void act(() => setStatus({ taskId: task.id, status }));
-            }}
-          />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            {!task.controlState &&
-              task.status !== "done" &&
-              button(t("暂停任务"), () => {
-                void act(() => pauseTask({ taskId: task.id }));
-              })}
-            {!!task.controlState && (
-              <Text style={{ color: muted }}>
-                {task.controlState === "pausing"
-                  ? t("暂停中：正在等待各节点确认中断。")
-                  : t(
-                      "已暂停：补充评论后，@选择成员并点击继续。未选择的成员保持暂停。",
-                    )}
-              </Text>
-            )}
-          </View>
-          <Text style={{ color: foreground, fontSize: 18, fontWeight: "700" }}>
-            {t("执行与会话记录")}
-          </Text>
-          {!state.runs.some((r) => r.taskId === task.id) && (
-            <Text style={{ color: muted, fontSize: 13 }}>
-              {t(
-                "此任务尚未派发 Agent，暂无会话记录。任务标记完成不会删除已有会话。",
-              )}
-            </Text>
-          )}
-          {[...state.runs]
-            .reverse()
-            .filter((r) => r.taskId === task.id)
-            .map((r) => (
-              <View
-                key={r.id}
-                style={{
-                  borderWidth: 1,
-                  borderColor: muted,
-                  borderRadius: 8,
-                  padding: 12,
-                  gap: 6,
-                }}
-              >
-                <Text style={{ color: foreground, fontWeight: "700" }}>
-                  {r.member.name} · {runLabels[r.status]}
-                  {r.stopRequested &&
-                  [
-                    "queued",
-                    "starting",
-                    "running",
-                    "permission",
-                    "delivery_unknown",
-                  ].includes(r.status)
-                    ? ` · ${t("正在中断")}`
-                    : ""}
-                </Text>
-                {!!r.previousRunId && (
-                  <Text style={{ color: muted, fontSize: 12 }}>
-                    {t("沿用本任务成员会话")}
-                  </Text>
-                )}
-                <Text selectable style={{ color: muted, fontSize: 12 }}>
-                  {t("触发评论：")}
-                  {state.comments.find((c) => c.id === r.commentId)?.body}
-                </Text>
-                <Text selectable style={{ color: muted, fontSize: 12 }}>
-                  {state.hosts.find((h) => h.id === r.member.hostId)?.name} ·{" "}
-                  {r.member.cwd}
-                  {"\n"}
-                  {r.member.provider}
-                  {"\n"}
-                  {r.agentId ?? t("等待创建 Agent")}
-                </Text>
-                {!!r.error && (
-                  <Text style={{ color: foreground }}>{r.error}</Text>
-                )}
-                <View
-                  style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}
-                >
-                  {button(t("查看会话记录"), () => setSelectedRun(r))}
-                  {r.agentId &&
-                    navigation &&
-                    button(t("打开原生会话"), () =>
-                      navigation.openAgent({
-                        agentId: r.agentId as string,
-                        ...(r.member.hostId === "local"
-                          ? {}
-                          : { serverId: r.member.hostId }),
-                      }),
-                    )}
-                  {[
-                    "queued",
-                    "starting",
-                    "running",
-                    "permission",
-                    "delivery_unknown",
-                  ].includes(r.status) &&
-                    button(t("停止执行"), () => {
-                      void act(() => stop({ runId: r.id }));
-                    })}
-                </View>
-              </View>
-            ))}
-          {selectedRun && (
-            <Modal
-              title={t("会话记录 · {0}", { 0: selectedRun.member.name })}
-              open={!!selectedRun}
-              onOpenChange={(open) => {
-                if (!open) setSelectedRun(null);
-              }}
-            >
-              <Modal.Content>
-                <Text style={{ color: foreground, fontSize: 18 }}>
-                  {t("执行过程 ·")}
-                  {selectedRun.member.name}
-                </Text>
-                <Text style={{ color: muted }}>
-                  {t("每 4 秒更新，可在此查看消息、工具调用和最终结果。")}
-                </Text>
-                {hasOlder && (
-                  <Pressable
-                    accessibilityRole="button"
-                    disabled={historyBusy}
-                    onPress={() => {
-                      if (!historyCursor.current) return;
-                      const runId = selectedRun.id;
-                      setHistoryBusy(true);
-                      void timeline({ runId, cursor: historyCursor.current })
-                        .then((page) => {
-                          if (viewedRun.current !== runId) return;
-                          setRows((old) =>
-                            [
-                              ...new Map(
-                                [...page.entries, ...old].map((row) => [
-                                  row.seq,
-                                  row,
-                                ]),
-                              ).values(),
-                            ].sort((a, b) => a.seq - b.seq),
-                          );
-                          setHasOlder(page.hasOlder);
-                          historyCursor.current = page.startCursor;
-                        })
-                        .catch(() => {
-                          if (viewedRun.current === runId)
-                            setTimelineError(t("更早记录读取失败，请重试。"));
-                        })
-                        .finally(() => {
-                          if (viewedRun.current === runId)
-                            setHistoryBusy(false);
-                        });
-                    }}
-                    style={{ padding: 10 }}
-                  >
-                    <Text style={{ color: foreground }}>
-                      {historyBusy ? t("读取中…") : t("加载更早记录")}
-                    </Text>
-                  </Pressable>
-                )}
-                {!!timelineError && (
-                  <Text style={{ color: foreground }}>{timelineError}</Text>
-                )}
-                {permissions.map((p) => (
-                  <View
-                    key={p.id}
-                    style={{
-                      padding: 12,
-                      borderWidth: 1,
-                      borderColor: muted,
-                      borderRadius: 8,
-                      gap: 8,
-                    }}
-                  >
-                    <Text style={{ color: foreground, fontWeight: "700" }}>
-                      {t("等待权限")}
-                    </Text>
-                    <Text selectable style={{ color: foreground }}>
-                      {p.title}
-                    </Text>
-                    <Text selectable style={{ color: muted, fontSize: 12 }}>
-                      {JSON.stringify(p.input, null, 2)}
-                    </Text>
-                    {p.kind === "tool" ? (
-                      <View style={{ flexDirection: "row", gap: 8 }}>
-                        {button(t("批准本次请求"), () => {
-                          void act(() =>
-                            respondPermission({
-                              runId: selectedRun.id,
-                              requestId: p.id,
-                              allow: true,
-                            }),
-                          );
-                        })}
-                        {button(t("拒绝请求"), () => {
-                          void act(() =>
-                            respondPermission({
-                              runId: selectedRun.id,
-                              requestId: p.id,
-                              allow: false,
-                            }),
-                          );
-                        })}
-                      </View>
-                    ) : (
-                      <Text style={{ color: muted }}>
-                        {t("请在原生会话中处理此类请求。")}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-                {rows.map((row) => (
-                  <EventRow
-                    key={row.seq}
-                    item={row.item}
-                    foreground={foreground}
-                    muted={muted}
-                  />
-                ))}
-                {!rows.length && !timelineError && (
-                  <Text style={{ color: muted }}>
-                    {t("暂无可读取的会话消息。")}
-                  </Text>
-                )}
-                <Text
-                  style={{ color: foreground, fontSize: 16, fontWeight: "600" }}
-                >
-                  {t("已保存的执行结果")}
-                </Text>
-                <Text selectable style={{ color: foreground }}>
-                  {state.runs.find((r) => r.id === selectedRun.id)?.result ||
-                    state.runs.find((r) => r.id === selectedRun.id)?.error ||
-                    t("尚无结果。")}
-                </Text>
-              </Modal.Content>
-            </Modal>
-          )}
-          <Text style={{ color: foreground, fontSize: 18, fontWeight: "700" }}>
-            {t("任务讨论与结果")}
-          </Text>
-          {state.comments
-            .filter((c) => c.taskId === task.id)
-            .map((c) => (
-              <View
-                key={c.id}
-                style={{
-                  gap: 6,
-                  paddingVertical: 10,
-                  borderBottomWidth: 1,
-                  borderColor: muted,
-                }}
-              >
-                <Text style={{ color: muted, fontSize: 12 }}>
-                  {c.author} · {new Date(c.createdAt).toLocaleString(locale)}
-                </Text>
-                <Text selectable style={{ color: foreground }}>
-                  {c.body}
-                </Text>
-                {!!c.attachments?.length && (
-                  <CommentAttachments items={c.attachments} theme={theme} />
-                )}
-                {!!c.memberIds.length && (
-                  <Text style={{ color: muted }}>
-                    {t("指派：")}
-                    {c.memberIds
-                      .map(
-                        (id) =>
-                          `@${state.members.find((m) => m.id === id)?.name ?? id}`,
-                      )
-                      .join(" ")}
-                  </Text>
-                )}
-              </View>
-            ))}
-          <CommentComposer
-            key={task.id}
-            taskId={task.id}
-            state={state}
-            theme={theme}
-            layout={layout}
-            refresh={refresh}
-          />
         </>
       )}
     </ScrollView>

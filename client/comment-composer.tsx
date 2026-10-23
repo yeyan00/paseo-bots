@@ -20,7 +20,9 @@ export function CommentComposer({
   theme,
   layout,
   refresh,
+  compact = false,
 }: {
+  compact?: boolean;
   taskId: string;
   state: State;
   theme: PluginScreenProps["theme"];
@@ -126,7 +128,8 @@ export function CommentComposer({
           multiline
           style={{
             color: c.foreground,
-            minHeight: 96,
+            minHeight: compact ? 48 : 96,
+            maxHeight: compact ? 110 : 240,
             padding: 8,
             textAlignVertical: "top",
           }}
@@ -235,17 +238,19 @@ export function CommentComposer({
           </Pressable>
         </View>
       </View>
-      <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
-        {members.length
-          ? t(
-              "发送给 {0} 位成员：自动继续本任务会话，首次指派自动创建；执行中的补充按顺序排队。",
-              {
-                0: members.length,
-              },
-            )
-          : t("不选择成员时仅发表评论。")}{" "}
-        {t("附件最多 4 个，单个 512 KB。")}
-      </Text>
+      {!compact && (
+        <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
+          {members.length
+            ? t(
+                "发送给 {0} 位成员：自动继续本任务会话，首次指派自动创建；执行中的补充按顺序排队。",
+                {
+                  0: members.length,
+                },
+              )
+            : t("不选择成员时仅发表评论。")}{" "}
+          {t("附件最多 4 个，单个 512 KB。")}
+        </Text>
+      )}
       {layout.platform !== "web" && (
         <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
           {t(

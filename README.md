@@ -13,7 +13,8 @@ _Illustration only. Roles, hosts, and task labels are fictional._
 ## Features
 
 - **Shared task board:** To do → In progress → Blocked / In review → Done.
-- **Named members:** associate each member with a host, runtime, explicit model, role instructions, and default directory. One host can have several members.
+- **Named bots:** associate each bot with a host, runtime, explicit model, role instructions, and default directory. One host can have several bots.
+- **Discussion timeline:** compact execution cards follow their triggering comments; expand long replies inline. Execution details open alongside discussion on wide screens or fill the plugin area on narrow screens. Returning preserves the draft, expanded replies, and reading position.
 - **Comment to assign:** select `@members` and send instructions. Comments without recipients remain discussion.
 - **Persistent sessions:** continue the same member's session within a task; create it automatically on first assignment.
 - **Execution history:** view messages, tool activity, permission requests, and saved results, including after completion.
@@ -48,11 +49,11 @@ The script installs or reloads the plugin through the local running daemon witho
 
 ## Set up your team
 
-1. In **Hosts & members**, add an execution host using its Paseo Relay pairing link. The coordinator's own host is already available.
-2. Add members and choose their host, runtime, explicit model, default directory, and instructions.
-3. Add a collaboration project and select the corresponding Paseo project on each participating host. The picker can register an existing directory or create a new host project.
+1. In **Bots → Hosts**, add an execution host using its Paseo Relay pairing link. The coordinator's own host is already available.
+2. In **Bots**, add bots and choose their host, runtime, explicit model, default directory, and instructions.
+3. In **Bots → Projects & directories**, add a collaboration project and select the corresponding Paseo project on each participating host. The picker can register an existing directory or create a new host project.
 4. Create a task with a goal and acceptance criteria, then choose its project.
-5. Write instructions, choose **@ Members**, and send. Inspect progress under **Runs & session history**.
+5. Write instructions in the bottom composer, choose **@ Bots**, and send. Select an execution card to inspect progress, or use the task header to find each bot's latest run.
 6. Verify actual deliverables before marking the task Done.
 
 A task's project determines its directory on each host; without a project, the member's default directory is used. Existing runs retain their original directory. Project associations **do not synchronize files**.
