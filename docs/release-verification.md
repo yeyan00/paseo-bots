@@ -1,6 +1,6 @@
 # Release verification
 
-Version: 0.1.0. Verification date: 2026-10-23.
+Version: 0.1.0 (`v0.1.0` Git tag). Verification date: 2026-10-23.
 
 ## Installation and compilation
 
@@ -19,6 +19,8 @@ Playwright checks against the installed Paseo client covered desktop (1440×1000
 Native iOS/Android keyboard behavior and a complete native-device matrix have not been verified. Hermes compilation is a compatibility check, not a substitute for device testing.
 
 The compact task toolbar was additionally checked in the isolated sample preview at desktop and phone widths: icon rendering, hover and keyboard-focus hints, detail/member toggles, keyboard activation and long-press hints. Holding the pause control did not dispatch a pause request. The phone-width title retained 262px of width at a 390px viewport, with no horizontal overflow. Native-device long-press behavior still needs device validation. The listing images reflect this toolbar update.
+
+The tag also fixes tooltip stacking after scrolling: the header and its toolbar rows have explicit stacking layers above the discussion while remaining below narrow-screen execution details. The overlap was reproduced before the fix. Playwright checks at 1280px and 390px widths verify the tooltip paints above scrolled comments and execution details still open correctly. Native-device layer behavior has not been independently verified.
 
 ## Listing images
 

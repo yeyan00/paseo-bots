@@ -244,7 +244,7 @@ export function TaskDiscussion({
         }}
       >
         <View
-          style={{ flex: 1, minWidth: 0 }}
+          style={{ flex: 1, minWidth: 0, zIndex: 0 }}
           pointerEvents={overlay ? "none" : "auto"}
           accessibilityElementsHidden={overlay}
           aria-hidden={overlay}
@@ -256,10 +256,19 @@ export function TaskDiscussion({
               gap: 8,
               borderBottomWidth: 1,
               borderColor: c.border,
+              // The header owns its tooltip layer above the scrolling discussion.
+              zIndex: 2,
+              overflow: "visible",
+              backgroundColor: c.surface0,
             }}
           >
             <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+                zIndex: 2,
+              }}
             >
               <IconAction
                 icon="ArrowLeft"
@@ -296,6 +305,7 @@ export function TaskDiscussion({
                 alignItems: "center",
                 flexWrap: "wrap",
                 gap: 4,
+                zIndex: 1,
               }}
             >
               <Text style={{ color: c.foregroundMuted, fontSize: 12, flex: 1 }}>
