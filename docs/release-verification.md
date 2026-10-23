@@ -18,6 +18,8 @@ Playwright checks against the installed Paseo client covered desktop (1440×1000
 
 Native iOS/Android keyboard behavior and a complete native-device matrix have not been verified. Hermes compilation is a compatibility check, not a substitute for device testing.
 
+The compact task toolbar was additionally checked in the isolated sample preview at desktop and phone widths: icon rendering, hover and keyboard-focus hints, detail/member toggles, keyboard activation and long-press hints. Holding the pause control did not dispatch a pause request. The phone-width title retained 262px of width at a 390px viewport, with no horizontal overflow. Native-device long-press behavior still needs device validation. The listing images reflect this toolbar update.
+
 ## Listing images
 
 `assets/team-discussion-desktop.png` and `assets/team-discussion-mobile.png` render the actual task UI components in an isolated browser preview with fictional data and simulated host SDK responses. The preview never connects to live hosts or invokes models. The selector adapter represents host-provided controls; it is not a full embedded Paseo shell. The sample test output is illustrative, not evidence of a real execution. No live host, project, credential or model information is present.

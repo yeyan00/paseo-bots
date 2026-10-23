@@ -15,6 +15,7 @@ _Illustration only. Roles, hosts, and task labels are fictional._
 - **Shared task board:** To do → In progress → Blocked / In review → Done.
 - **Named bots:** associate each bot with a host, runtime, explicit model, role instructions, and default directory. One host can have several bots.
 - **Discussion timeline:** compact execution cards follow their triggering comments; expand long replies inline. Execution details open alongside discussion on wide screens or fill the plugin area on narrow screens. Returning preserves the draft, expanded replies, and reading position.
+- **Compact task controls:** icon actions leave space for the title. Hover or focus to read a hint; on touch screens, long-press for the hint without executing the action.
 - **Comment to assign:** select `@members` and send instructions. Comments without recipients remain discussion.
 - **Persistent sessions:** continue the same member's session within a task; create it automatically on first assignment.
 - **Execution history:** view messages, tool activity, permission requests, and saved results, including after completion.

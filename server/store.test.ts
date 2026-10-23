@@ -114,6 +114,7 @@ test("all Chinese UI copy goes through the translator", async () => {
   for (const file of [
     "team-screen.tsx",
     "task-discussion.tsx",
+    "icon-action.tsx",
     "run-detail.tsx",
     "comment-composer.tsx",
     "comment-attachments.tsx",

@@ -25,6 +25,7 @@ import {
   latestMemberRuns,
 } from "./discussion-model";
 import { useI18n } from "./i18n";
+import { IconAction } from "./icon-action";
 
 function PreviewText({ text, color }: { text: string; color: string }) {
   const { t } = useI18n();
@@ -260,7 +261,13 @@ export function TaskDiscussion({
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
             >
-              {button(t("返回看板"), onBack, false)}
+              <IconAction
+                icon="ArrowLeft"
+                label={t("返回看板")}
+                theme={theme}
+                onPress={onBack}
+                align="start"
+              />
               <Text
                 numberOfLines={2}
                 style={{
@@ -272,43 +279,62 @@ export function TaskDiscussion({
               >
                 {task.title}
               </Text>
-              {button(
-                showInfo ? t("收起详情") : t("任务详情"),
-                () => setShowInfo((value) => !value),
-                false,
-              )}
+              <IconAction
+                icon="Info"
+                label={t("任务详情")}
+                theme={theme}
+                expanded={showInfo}
+                onPress={() => {
+                  setShowInfo((value) => !value);
+                  setShowMembers(false);
+                }}
+              />
             </View>
             <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
                 flexWrap: "wrap",
-                gap: 8,
+                gap: 4,
               }}
             >
-              {button(
-                t("{0} 位成员 · {1} 个活跃执行", {
+              <Text style={{ color: c.foregroundMuted, fontSize: 12, flex: 1 }}>
+                {task.controlState === "pausing"
+                  ? t("暂停中")
+                  : task.controlState === "paused"
+                    ? t("已暂停")
+                    : labels[task.status]}
+              </Text>
+              <IconAction
+                icon="Users"
+                count={members.length}
+                label={t("{0} 位成员 · {1} 个活跃执行", {
                   0: members.length,
                   1: runs.filter(isActiveRun).length,
-                }),
-                () => setShowMembers((value) => !value),
-                false,
-              )}
+                })}
+                theme={theme}
+                expanded={showMembers}
+                onPress={() => {
+                  setShowMembers((value) => !value);
+                  setShowInfo(false);
+                }}
+              />
+              <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
+                {t("{0} 个活跃执行", { 0: runs.filter(isActiveRun).length })}
+              </Text>
               {!!runs.filter((r) => r.status === "permission").length && (
                 <Text style={{ color: c.statusWarning, fontSize: 12 }}>
                   {t("有权限请求待处理")}
                 </Text>
               )}
-              {task.status !== "done" &&
-                !task.controlState &&
-                button(
-                  t("暂停任务"),
-                  () => void act(() => pause({ taskId: task.id })),
-                )}
-              {!!task.controlState && (
-                <Text style={{ color: c.statusWarning, fontSize: 12 }}>
-                  {task.controlState === "pausing" ? t("暂停中") : t("已暂停")}
-                </Text>
+              {task.status !== "done" && !task.controlState && (
+                <IconAction
+                  icon="Pause"
+                  label={t("暂停任务")}
+                  theme={theme}
+                  disabled={busy}
+                  onPress={() => void act(() => pause({ taskId: task.id }))}
+                />
               )}
             </View>
             {task.controlState && (
@@ -346,11 +372,6 @@ export function TaskDiscussion({
                   />
                 </ScrollView>
               </View>
-            )}
-            {!showInfo && (
-              <Text style={{ color: c.foregroundMuted, fontSize: 12 }}>
-                {labels[task.status]}
-              </Text>
             )}
             {showMembers && (
               <ScrollView

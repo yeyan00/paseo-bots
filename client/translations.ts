@@ -1,4 +1,5 @@
 export const english = {
+  "{0} 个活跃执行": "{0} active runs",
   "正在读取会话…": "Loading conversation…",
   成员列表: "Bots",
   返回讨论: "Back to discussion",
