@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">team bots: one board, multiple hosts</title>
+  <desc id="desc">A phone or desktop connects to a coordinator running the team bots plugin. The coordinator manages a local agent and agents on fictional Host A and Host B, bringing progress and results back to one board.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f0f5ff"/><stop offset="1" stop-color="#f1faf7"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L8 5L1 9" fill="none" stroke="#8294b5" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1200" height="680" rx="24" fill="url(#bg)"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="48" y="36" width="112" height="28" rx="14" fill="#e0e8ff"/>
+    <text x="104" y="55" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="1.3" fill="#3d55a5">TEAM BOTS</text>
+    <text x="48" y="110" font-size="36" font-weight="700" fill="#172944">Your agents. One shared task.</text>
+    <text x="48" y="142" font-size="17" fill="#5b6d87">Assign work across hosts. Follow execution and collect results in Paseo.</text>
+
+    <path d="M306 360H410" fill="none" stroke="#8294b5" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <text x="360" y="337" text-anchor="middle" font-size="12" fill="#5b6d87">Paseo</text>
+    <text x="360" y="396" text-anchor="middle" font-size="12" fill="#5b6d87">connection</text>
+    <path d="M766 360H818V282H876" fill="none" stroke="#8294b5" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M818 360V470H876" fill="none" stroke="#8294b5" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M876 300H837V379H772" fill="none" stroke="#8294b5" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+    <text x="824" y="205" text-anchor="middle" font-size="12" fill="#5b6d87">Dispatch</text>
+    <text x="824" y="559" text-anchor="middle" font-size="12" fill="#5b6d87">Progress + results</text>
+
+    <rect x="48" y="232" width="258" height="272" rx="18" fill="#fff" stroke="#d6e0ef"/>
+    <rect x="68" y="252" width="36" height="36" rx="10" fill="#eaf0ff"/>
+    <rect x="80" y="259" width="12" height="22" rx="3" fill="none" stroke="#526bbe" stroke-width="2"/>
+    <text x="116" y="274" font-size="18" font-weight="700" fill="#172944">Phone / Desktop</text>
+    <text x="68" y="321" font-size="13" font-weight="700" fill="#5b6d87">SHARED TASK BOARD</text>
+    <rect x="68" y="337" width="218" height="44" rx="9" fill="#f5f7fc"/>
+    <circle cx="86" cy="359" r="4" fill="#6085dc"/>
+    <text x="100" y="364" font-size="14" fill="#344761">Build a feature</text>
+    <rect x="68" y="389" width="218" height="44" rx="9" fill="#f5f7fc"/>
+    <circle cx="86" cy="411" r="4" fill="#dcaa4c"/>
+    <text x="100" y="416" font-size="14" fill="#344761">Review a change</text>
+    <text x="68" y="468" font-size="13" fill="#5b6d87">Comments · History · Results</text>
+
+    <rect x="416" y="190" width="350" height="366" rx="18" fill="#fff" stroke="#99b0e9" stroke-width="2"/>
+    <rect x="436" y="210" width="36" height="36" rx="10" fill="#eaf0ff"/>
+    <path d="M444 221H464M444 228H464M444 235H457" stroke="#526bbe" stroke-width="2"/>
+    <text x="484" y="233" font-size="20" font-weight="700" fill="#172944">Coordinator host</text>
+    <text x="436" y="278" font-size="14" fill="#5b6d87">team bots plugin</text>
+    <rect x="436" y="297" width="310" height="114" rx="12" fill="#f3f6fe"/>
+    <text x="454" y="326" font-size="15" font-weight="700" fill="#344761">Tasks + comments</text>
+    <text x="454" y="355" font-size="14" fill="#5b6d87">Member routing + run tracking</text>
+    <text x="454" y="384" font-size="14" fill="#5b6d87">Saved state + collected results</text>
+    <rect x="436" y="429" width="310" height="66" rx="12" fill="#eaf7f0"/>
+    <circle cx="460" cy="462" r="6" fill="#3b9573"/>
+    <text x="480" y="458" font-size="15" font-weight="700" fill="#285c49">Local agent</text>
+    <text x="480" y="480" font-size="13" fill="#547666">The coordinator can work, too</text>
+    <text x="436" y="532" font-size="13" fill="#5b6d87">Keeps coordinating when the client closes</text>
+
+    <rect x="882" y="226" width="270" height="132" rx="16" fill="#fff" stroke="#d6e0ef"/>
+    <text x="904" y="260" font-size="18" font-weight="700" fill="#172944">Host A</text>
+    <text x="904" y="288" font-size="14" fill="#5b6d87">Paseo daemon</text>
+    <rect x="904" y="306" width="226" height="32" rx="8" fill="#eef3ff"/>
+    <text x="1017" y="327" text-anchor="middle" font-size="14" fill="#405da9">Builder agent</text>
+    <rect x="882" y="414" width="270" height="132" rx="16" fill="#fff" stroke="#d6e0ef"/>
+    <text x="904" y="448" font-size="18" font-weight="700" fill="#172944">Host B</text>
+    <text x="904" y="476" font-size="14" fill="#5b6d87">Paseo daemon</text>
+    <rect x="904" y="494" width="226" height="32" rx="8" fill="#eef7f1"/>
+    <text x="1017" y="515" text-anchor="middle" font-size="14" fill="#397257">Reviewer agent</text>
+
+    <path d="M48 600H1152" stroke="#d6e0ef"/>
+    <text x="48" y="635" font-size="14" font-weight="700" fill="#344761">One plugin install</text>
+    <text x="407" y="635" font-size="14" font-weight="700" fill="#344761">Local + remote execution</text>
+    <text x="882" y="635" font-size="14" font-weight="700" fill="#344761">One place to review</text>
+  </g>
+</svg>

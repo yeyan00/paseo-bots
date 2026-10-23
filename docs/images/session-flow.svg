@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Pause, correct, and continue the same agent sessions</title>
+  <desc id="desc">Five steps show assignment, execution, confirmed pause, a correction comment, and continuation. A fictional Builder member continues its existing session with a new run, while an unselected Reviewer member stays paused.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f4f3ff"/><stop offset="1" stop-color="#f2f8fc"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#94a1bb" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1200" height="700" rx="24" fill="url(#bg)"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="48" y="36" width="112" height="28" rx="14" fill="#e7e2ff"/>
+    <text x="104" y="55" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="1.3" fill="#6550a6">TEAM BOTS</text>
+    <text x="48" y="110" font-size="36" font-weight="700" fill="#242442">Pause. Correct. Continue.</text>
+    <text x="48" y="142" font-size="17" fill="#666781">Keep the conversation context. Track each assignment as a separate run.</text>
+
+    <g fill="none" stroke="#94a1bb" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M246 235H270"/><path d="M472 235H496"/><path d="M698 235H722"/><path d="M924 235H948"/>
+    </g>
+    <rect x="48" y="190" width="198" height="112" rx="14" fill="#fff" stroke="#dcdff0"/>
+    <text x="66" y="218" font-size="12" font-weight="700" fill="#7a7892">01</text>
+    <text x="66" y="245" font-size="20" font-weight="700" fill="#242442">Assign</text>
+    <text x="66" y="276" font-size="14" fill="#666781">Select @members</text>
+    <rect x="274" y="190" width="198" height="112" rx="14" fill="#fff" stroke="#dcdff0"/>
+    <text x="292" y="218" font-size="12" font-weight="700" fill="#7a7892">02</text>
+    <text x="292" y="245" font-size="20" font-weight="700" fill="#242442">Run</text>
+    <text x="292" y="276" font-size="14" fill="#666781">Follow execution</text>
+    <rect x="500" y="190" width="198" height="112" rx="14" fill="#fff9ec" stroke="#e1c587"/>
+    <text x="518" y="218" font-size="12" font-weight="700" fill="#987127">03</text>
+    <text x="518" y="245" font-size="20" font-weight="700" fill="#72551f">Pause</text>
+    <text x="518" y="276" font-size="14" fill="#846b3b">Wait for confirmation</text>
+    <rect x="726" y="190" width="198" height="112" rx="14" fill="#fff" stroke="#dcdff0"/>
+    <text x="744" y="218" font-size="12" font-weight="700" fill="#7a7892">04</text>
+    <text x="744" y="245" font-size="20" font-weight="700" fill="#242442">Correct</text>
+    <text x="744" y="276" font-size="14" fill="#666781">Add a task comment</text>
+    <rect x="952" y="190" width="200" height="112" rx="14" fill="#ebf7f0" stroke="#9fcdb3"/>
+    <text x="970" y="218" font-size="12" font-weight="700" fill="#4a8463">05</text>
+    <text x="970" y="245" font-size="20" font-weight="700" fill="#2b6143">Continue</text>
+    <text x="970" y="276" font-size="14" fill="#547a63">Choose who resumes</text>
+
+    <rect x="48" y="340" width="1104" height="70" rx="12" fill="#fff" stroke="#dcdff0"/>
+    <rect x="68" y="358" width="94" height="34" rx="17" fill="#eee9ff"/>
+    <text x="115" y="380" text-anchor="middle" font-size="13" font-weight="700" fill="#6852ab">Comment</text>
+    <text x="182" y="381" font-size="17" fill="#484860">@Builder Please use the revised acceptance criteria.</text>
+
+    <rect x="48" y="438" width="536" height="186" rx="16" fill="#fff" stroke="#b4d4c0"/>
+    <text x="70" y="473" font-size="18" font-weight="700" fill="#242442">Builder</text>
+    <rect x="429" y="452" width="133" height="30" rx="15" fill="#e8f6ee"/>
+    <text x="495" y="472" text-anchor="middle" font-size="12" font-weight="700" fill="#3d8059">SAME SESSION</text>
+    <rect x="70" y="500" width="204" height="52" rx="9" fill="#f4f4f9"/>
+    <text x="172" y="532" text-anchor="middle" font-size="14" fill="#666781">Run 1 · Paused</text>
+    <path d="M282 526H322" stroke="#94a1bb" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="334" y="500" width="228" height="52" rx="9" fill="#e8f6ee"/>
+    <text x="448" y="532" text-anchor="middle" font-size="14" font-weight="700" fill="#3d8059">Run 2 · In progress</text>
+    <text x="70" y="590" font-size="14" fill="#666781">Correction linked to the new run</text>
+
+    <rect x="616" y="438" width="536" height="186" rx="16" fill="#fff" stroke="#dcdff0"/>
+    <text x="638" y="473" font-size="18" font-weight="700" fill="#242442">Reviewer</text>
+    <rect x="992" y="452" width="138" height="30" rx="15" fill="#f0f0f6"/>
+    <text x="1061" y="472" text-anchor="middle" font-size="12" font-weight="700" fill="#78788c">NOT SELECTED</text>
+    <rect x="638" y="500" width="492" height="52" rx="9" fill="#f4f4f9"/>
+    <text x="884" y="532" text-anchor="middle" font-size="14" fill="#666781">Run 1 · Stays paused</text>
+    <text x="638" y="590" font-size="14" fill="#666781">No automatic restart of old queued work</text>
+
+    <text x="600" y="664" text-anchor="middle" font-size="15" font-weight="700" fill="#666781">Same sessions · Separate run records · Traceable comments</text>
+  </g>
+</svg>
