@@ -145,7 +145,7 @@ export const english = {
   "指派：": "Assigned to: ",
   "已选 {0} 位，共 {1} 位成员": "{0} selected · {1} bots available",
   "每次最多选择 {0} 位成员": "Select up to {0} bots per assignment",
-  指派设置: "Assignment settings",
+  设置: "Settings",
   每条评论最多指派成员数: "Maximum bots per comment",
   不限: "Unlimited",
   "限制每次评论可指派的成员数量，不影响已提交的执行，也不是并发或排队设置。":

@@ -314,7 +314,7 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
               management === "hosts",
             )}
             {button(
-              t("指派设置"),
+              t("设置"),
               () => setManagement("settings"),
               management === "settings",
             )}
@@ -324,7 +324,7 @@ function HostTeam({ theme, layout, navigation }: PluginScreenProps) {
               <SettingsSelect
                 label={t("每条评论最多指派成员数")}
                 value={String(
-                  state.assignmentSettings?.maxMembersPerComment ?? 0,
+                  state.assignmentSettings?.maxMembersPerComment ?? 8,
                 )}
                 options={[0, 1, 2, 4, 8, 16, 32].map((limit) => ({
                   value: String(limit),

@@ -17,7 +17,7 @@ _Illustration only. Roles, hosts, and task labels are fictional._
 - **Discussion timeline:** compact execution cards follow their triggering comments; expand long replies inline. Execution details open alongside discussion on wide screens or fill the plugin area on narrow screens. Returning preserves the draft, expanded replies, and reading position.
 - **Compact task controls:** icon actions leave space for the title. Hover or focus to read a hint; on touch screens, long-press for the hint without executing the action.
 - **Comment to assign:** select `@members` and send instructions. Comments without recipients remain discussion.
-- **Assignment settings:** under Bots → Assignment settings, limit bots per comment or leave it Unlimited (the default). This setting is saved on the coordinator and does not control concurrency or queuing.
+- **Assignment settings:** under Bots → Settings, limit bots per comment (8 by default) or choose Unlimited. This setting is saved on the coordinator and does not control concurrency or queuing.
 - **Persistent sessions:** continue the same member's session within a task; create it automatically on first assignment.
 - **Execution history:** view messages, tool activity, permission requests, and saved results, including after completion.
 - **Pause and correct:** freeze dispatch, confirm interruption, add a correction, and continue only selected members.

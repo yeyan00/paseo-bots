@@ -406,6 +406,10 @@ test("assignment limit is persisted, enforced, and can be removed", async () => 
     memberIds: bots,
   };
   await expect(f.coordinator.comment(input)).rejects.toThrow("最多指派 2");
+  await f.store.mutate((state) => {
+    delete state.assignmentSettings;
+  });
+  await expect(f.coordinator.comment(input)).rejects.toThrow("最多指派 8");
   expect((await f.store.read()).comments).toHaveLength(0);
   await f.store.mutate((state) => {
     state.assignmentSettings = { maxMembersPerComment: 0 };

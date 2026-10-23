@@ -45,7 +45,7 @@ export function CommentComposer({
     [error, setError] = useState("");
   const pending = useRef<{ key: string; id: string } | null>(null);
   const c = theme.colors;
-  const memberLimit = state.assignmentSettings?.maxMembersPerComment ?? 0;
+  const memberLimit = state.assignmentSettings?.maxMembersPerComment ?? 8;
   const controlState = state.tasks.find((t) => t.id === taskId)?.controlState;
   const sendingBlocked =
     busy ||
